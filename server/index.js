@@ -8,9 +8,13 @@ const port = 8000;
 
 
 app.use(cors({
-    origin: "http://localhost:5173",
-    methods:["GET","POST","PATCH","DELETE"],
+  origin: [
+    "http://localhost:5173",
+    "https://contact-management-seven-nu.vercel.app"
+  ],
+  methods: ["GET","POST","PATCH","DELETE"],
 }));
+
 //Display All Users
 app.get("/users",(req,res) =>{
 return res.json(users);
