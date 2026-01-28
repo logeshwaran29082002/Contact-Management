@@ -7,10 +7,11 @@ function App() {
   const [filteredUsers, setfiltersUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState({ name: "", age: "", city: "" });
+  const API = import.meta.env.VITE_API_URL;
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/users");
+       const res = await axios.get(`${API}/users`);
       setUsers(res.data);
       setfiltersUsers(res.data);
     } catch (error) {
@@ -37,7 +38,7 @@ function App() {
   const handleDelete = async (id) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this user?");
     if (isConfirmed) {
-      await axios.delete(`http://localhost:8000/users/${id}`);
+     await axios.delete(`${API}/users/${id}`);
       setUsers(users.filter((user) => user.id !== id));
       setfiltersUsers(filteredUsers.filter((user) => user.id !== id));
     }
@@ -56,12 +57,14 @@ function App() {
   const handleSubmit = async(e) => {
     e.preventDefault();
     if(userData.id){
-      await axios.patch(`http://localhost:8000/users/${userData.id}`, userData)
+      await axios.patch(`${API}/users/${userData.id}`, userData)
+
       .then((res) =>{
         console.log(res);
       });
     }else{
-    await axios.post(`http://localhost:8000/users`, userData)
+    await axios.post(`${API}/users`, userData)
+
     .then((res) =>{
       console.log(res);
     });
