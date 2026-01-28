@@ -1,68 +1,57 @@
-const express = require ("express");
+const express = require("express");
 const cors = require("cors");
-const fs =require("fs")
-const users = require("./sample.json")
+const fs = require("fs");
+const users = require("./sample.json");
+
 const app = express();
-app.use(express.json())
+app.use(express.json());
+app.use(cors());   // ✅ SIMPLE FIX
+
 const port = 8000;
 
-
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://contact-management-seven-nu.vercel.app"
-  ],
-  methods: ["GET","POST","PATCH","DELETE"],
-}));
-
-//Display All Users
-app.get("/users",(req,res) =>{
-return res.json(users);
-});
-//delete user function
-app.delete("/users/:id",(req, res)=>{
-    let id =Number(req.params.id);
-    let filteredUsers=users.filter((user)=>user.id !== id);
-    fs.writeFile("./sample.json",JSON.stringify(filteredUsers),(err,data) =>{
-        return res.json(filteredUsers);
-    })
+// Display all users
+app.get("/users",(req,res)=>{
+  return res.json(users);
 });
 
-// ADD New User
-app.post("/users", (req,res)=>{
-    let {name, age,city} =req.body;
-    if(!name || !age ||!city){
-        res.status(400).send({message : "All Fields Required"})
-    }
-    let id=Date.now();
-    users.push({id,name,age,city})
-    fs.writeFile("./sample.json",JSON.stringify( users),
-    (err,data) =>{
-       
-    return res.json({"message": "User Details Added Sucessfully"})
-    })
+// Delete user
+app.delete("/users/:id",(req,res)=>{
+  let id = Number(req.params.id);
+  let filteredUsers = users.filter(user => user.id !== id);
 
-})
-//update user
-app.patch("/users/:id", (req,res)=>{
-    let id= Number(req.params.id)
-    let {name, age,city} =req.body;
-    if(!name || !age ||!city){
-        res.status(400).send({message : "All Fields Required"});
-    }
-   let index=users.findIndex((user) =>user.id == id);
-
-   users.splice(index,1,{...req.body});
-    fs.writeFile("./sample.json",JSON.stringify( users),
-    (err,data) =>{
-       
-    return res.json({"message": "User Details Updated Sucessfully"})
-    });
-
-});
-app.listen(port, (err) =>{
-    console.log(`App is running in port ${port}`);
-    
+  fs.writeFile("./sample.json", JSON.stringify(filteredUsers), ()=>{
+    return res.json(filteredUsers);
+  });
 });
 
+// Add user
+app.post("/users",(req,res)=>{
+  let {name, age, city} = req.body;
 
+  if(!name || !age || !city){
+    return res.status(400).json({message:"All Fields Required"});
+  }
+
+  let id = Date.now();
+  users.push({id,name,age,city});
+
+  fs.writeFile("./sample.json", JSON.stringify(users), ()=>{
+    return res.json({message:"User Added Successfully"});
+  });
+});
+
+// Update user
+app.patch("/users/:id",(req,res)=>{
+  let id = Number(req.params.id);
+  let index = users.findIndex(u=>u.id===id);
+
+  users.splice(index,1,{...req.body});
+
+  fs.writeFile("./sample.json", JSON.stringify(users), ()=>{
+    return res.json({message:"User Updated Successfully"});
+  });
+});
+
+app.listen(port,()=>{
+  console.log(`App is running on port ${port}`);
+});
